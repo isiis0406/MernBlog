@@ -1,48 +1,38 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
+import { useRegister } from '../hooks/useRegister';
 
 function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+    const { register, isLoading, error } = useRegister();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-                const URL = `${process.env.REACT_APP_API_ROUTE}/auth/register`
-              await axios.post(URL,{email,password});
-              alert('Registration completed');
-             
-              navigate('/auth/login');
-
-              
-        } catch (error) {
-            alert(error.response.data.message)
-        }
+        await register(email, password);
     }
-  return (
-    <div>
-        <h1>Register</h1>
-        <Form onSubmit={handleSubmit}>
-            <input 
-            type="text" 
-            placeholder='Username'
-            value={email}
-            onChange ={ (e) => setEmail(e.target.value)}  
-            />
-            <input 
-            type="password" 
-            placeholder='Password'
-            value={password}
-            onChange ={ (e) => setPassword(e.target.value)}  
-            />
-            <button type='submit'>Register</button>
-        </Form>
-    </div>
-  )
+    return (
+        <div>
+            <h1>Register</h1>
+            <Form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder='Username'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                    type="password"
+                    placeholder='Password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <button disabled={isLoading} type='submit'>Register</button>
+            </Form>
+            {error && <Error className='error'>{error}</Error>}
+
+        </div>
+    )
 }
 
 export default Register
@@ -51,7 +41,7 @@ const Form = styled.form`
     display: flex;
     flex-direction: column;
     align-items: center;
-    
+
     input {
         display: block;
         width: 40%;
@@ -77,4 +67,10 @@ const Form = styled.form`
         background-color: black;
 
     }
+   
+`
+const Error = styled.div`
+    color: red;
+    font-weight: 500;
+    padding: 1rem;
 `

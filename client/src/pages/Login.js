@@ -1,31 +1,22 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import {useCookies} from 'react-cookie';
+import { useLogin} from '../hooks/useLogin';
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login , error, isLoading } = useLogin();
 
   //Define cookie name
   // eslint-disable-next-line
   const [cookies, setCookies] = useCookies('acces_token');
   
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
       e.preventDefault();
-      try { 
-            const URL = `${process.env.REACT_APP_API_ROUTE}/auth/login`;
-            const response = await axios.post(URL,{email,password});
-            setCookies('acces_token', response.data.token);
-            window.localStorage.setItem("userID", response.data.userID);
-            navigate('/');
-                  
-      } catch (error) {
-          alert(error.response.data.message)
-      }
+      await login(email, password);
+  
   }
 return (
   <div>
@@ -46,7 +37,8 @@ return (
           value={password}
           onChange ={ (e) => setPassword(e.target.value)}  
           />
-          <button type='submit'>Login</button>
+          <button disabled={isLoading} type='submit'>Login</button>
+          {error && <Error>{error}</Error>}
       </Form>
   </div>
 )
@@ -84,4 +76,9 @@ const Form = styled.form`
       background-color: black;
 
   }
+`
+const Error = styled.div`
+    color: red;
+    font-weight: 500;
+    padding: 1rem;
 `
